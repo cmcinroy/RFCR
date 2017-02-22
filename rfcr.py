@@ -3,6 +3,8 @@
 
 # import external modules
 from datetime import datetime
+from gtts import gTTS
+import os
 
 # initialize a new, empty "dictionary" variable to store student ids/names
 students = {}
@@ -10,13 +12,19 @@ students = {}
 # initialize a new, empty "list" variable to store ids present
 idsPresent = []
 
+# set language and salutations
+gLang = 'fr'
+salutations = {
+    'en': ('Goodbye','Hello'),
+    'fr': ('Au revoir','Bienvenue')
+}
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
 # Function: a student has entered the class
 def enter(id):
     idsPresent.append(id)
     print('{} entered the class.'.format(students.get(id)))
-    speak('Hello, ' + students.get(id) + '.')
     log(1, id)
 
 
@@ -25,7 +33,6 @@ def enter(id):
 def leave(id):
     idsPresent.remove(id)
     print('{} left the class.'.format(students.get(id)))
-    speak('Goodbye, ' + students.get(id) + '.')
     log(0, id)
 
 
@@ -35,13 +42,20 @@ def leave(id):
 def log(opt, id):
     # just print for now
     print('log: {},{},{},{}'.format(datetime.now(), opt, id, len(idsPresent)))
+    # Also, "speak" the event
+    speak(salutations.get(gLang)[opt] + ' ' + students.get(id) + '.')
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
 # Function: convert the text to "speech"
 def speak(text):
     # just print for now
-    print('speak: ' + text)
+    ###print('speak: ' + text)
+    #TODO check if file (replace(name,' ','_')_opt_gLang.mp3) exists
+    tts = gTTS(text=text, lang=gLang)
+    tts.save("temp.mp3")
+    os.system("mpg123 -q temp.mp3")
+
 
 
 # = = = = = = = = = = = = = = = = = = = = = = = = =

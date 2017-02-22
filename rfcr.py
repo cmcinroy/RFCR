@@ -12,8 +12,8 @@ students = {}
 # initialize a new, empty "list" variable to store ids present
 idsPresent = []
 
-# set language and salutations
-gLang = 'fr'
+# set language (en/fr) and salutations
+gLang = 'en'
 salutations = {
     'en': ('Goodbye','Hello'),
     'fr': ('Au revoir','Bienvenue')
@@ -43,18 +43,23 @@ def log(opt, id):
     # just print for now
     print('log: {},{},{},{}'.format(datetime.now(), opt, id, len(idsPresent)))
     # Also, "speak" the event
-    speak(salutations.get(gLang)[opt] + ' ' + students.get(id) + '.')
+    speak(opt, id)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
-# Function: convert the text to "speech"
-def speak(text):
-    # just print for now
-    ###print('speak: ' + text)
-    #TODO check if file (replace(name,' ','_')_opt_gLang.mp3) exists
-    tts = gTTS(text=text, lang=gLang)
-    tts.save("temp.mp3")
-    os.system("mpg123 -q temp.mp3")
+# Function: "speek" a salutation for the event
+#   opt = 1 (enter) or  0 (leave)
+def speak(opt, id):
+    # Set the sound file name to "{student_name}_{opt}_{lang}.mp3"
+    fname = students.get(id).replace(' ', '_') + '_' + str(opt) + '_' + gLang + '.mp3'
+    if not os.path.isfile(fname):
+        # Phrase to be spoken is "{salutation} {student name}"
+        phrase = salutations.get(gLang)[opt] + ' ' + students.get(id) + '.'
+        tts = gTTS(text=phrase, lang=gLang)
+        # Save spoken sound to file
+        tts.save(fname)
+    # Play the sound file
+    os.system("mpg123 -q " + fname)
 
 
 

@@ -25,6 +25,8 @@ Build a RFID-based student register/attendance system for classroom use.
 ##Future
 - graphing number of students in class over time
 
+***
+
 ##Install
 ### Prerequisites
 - Python 3 (and pip)
@@ -64,6 +66,7 @@ Build a RFID-based student register/attendance system for classroom use.
 ###Windows
 - Download and install [mpg123](https://www.mpg123.de) (static build)
 
+***
 
 ##License
 RFCR is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License](http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

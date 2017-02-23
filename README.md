@@ -1,4 +1,3 @@
-# RFCR
 RF Class Registrator
 ====================
 
@@ -27,22 +26,43 @@ Build a RFID-based student register/attendance system for classroom use.
 - graphing number of students in class over time
 
 ##Install
-```
-sudo apt-get clean
-sudo apt-get autoremove
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install alsa-utils
-sudo nano /etc/modules
-sudo apt-get install mplayer
-sudo nano /etc/mplayer/mplayer.conf
-sudo apt-get install mpg123
-```
-Per [RPi Text to Speech (Speech Synthesis) - eLinux.org](http://elinux.org/RPi_Text_to_Speech_(Speech_Synthesis)).
-
-- install python 3
-- ensure audio is directed to HDMI output (/boot/config.txt)
+### Prerequisites
+- Python 3 (and pip)
 - pip3 install gTTS --user
+- Ensure audio is directed to HDMI output:
+```
+  sudo nano /boot/config.txt
+```
+- ... and uncomment the following line:
+```
+    hdmi_drive=2
+```
+
+###Linux
+- Ensure distro is up to date:
+```
+  sudo apt-get clean
+  sudo apt-get autoremove
+  sudo apt-get update
+  sudo apt-get upgrade
+```
+- Ensure the alsa sound utilities are installed:
+```
+  sudo apt-get install alsa-utils
+```
+- ... and ensure that /etc/modules has the following line:
+```
+    snd_bcm2835
+```
+
+- Install mpg123 audio player:
+```
+  sudo apt-get install mpg123
+```
+(Per [RPi Text to Speech (Speech Synthesis) - eLinux.org](http://elinux.org/RPi_Text_to_Speech_(Speech_Synthesis)).)
+
+###Windows
+- Download and install [mpg123](https://www.mpg123.de) (static build)
 
 
 ##License

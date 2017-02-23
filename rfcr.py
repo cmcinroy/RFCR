@@ -50,8 +50,8 @@ def log(opt, id):
 # Function: "speek" a salutation for the event
 #   opt = 1 (enter) or  0 (leave)
 def speak(opt, id):
-    # Set the sound file name to "{student_name}_{opt}_{lang}.mp3"
-    fname = students.get(id).replace(' ', '_') + '_' + str(opt) + '_' + gLang + '.mp3'
+    # Set the sound file name to "{student_name}_{opt}_{lang}.mp3" (in temp directory)
+    fname = './temp/' + students.get(id).replace(' ', '_') + '_' + str(opt) + '_' + gLang + '.mp3'
     if not os.path.isfile(fname):
         # Phrase to be spoken is "{salutation} {student name}"
         phrase = salutations.get(gLang)[opt] + ' ' + students.get(id) + '.'

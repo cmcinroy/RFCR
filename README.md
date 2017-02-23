@@ -13,7 +13,6 @@ Build a RFID-based student register/attendance system for classroom use.
   - Displays number of students in class
   - Displays current class register
 - Audio feedback: an event-appropriate salutation is "spoken" to the student
-- 
 
 ##Technologies
 ###Hardware

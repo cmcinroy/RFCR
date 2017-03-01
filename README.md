@@ -25,48 +25,6 @@ Build a RFID-based student register/attendance system for classroom use.
 ##Future
 - graphing number of students in class over time
 
-***
-
-##Install
-### Prerequisites
-- Python 3 (and pip)
-- pip3 install gTTS --user
-- Ensure audio is directed to HDMI output:
-```
-  sudo nano /boot/config.txt
-```
-- ... and uncomment the following line:
-```
-    hdmi_drive=2
-```
-
-###Linux
-- Ensure distro is up to date:
-```
-  sudo apt-get clean
-  sudo apt-get autoremove
-  sudo apt-get update
-  sudo apt-get upgrade
-```
-- Ensure the alsa sound utilities are installed:
-```
-  sudo apt-get install alsa-utils
-```
-- ... and ensure that /etc/modules has the following line:
-```
-    snd_bcm2835
-```
-
-- Install mpg123 audio player:
-```
-  sudo apt-get install mpg123
-```
-(Per [RPi Text to Speech (Speech Synthesis) - eLinux.org](http://elinux.org/RPi_Text_to_Speech_(Speech_Synthesis)).)
-
-###Windows
-- Download and install [mpg123](https://www.mpg123.de) (static build)
-
-***
 
 ##License
 RFCR is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License](http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

@@ -1,4 +1,3 @@
-# RFCR
 RF Class Registrator
 ====================
 
@@ -13,7 +12,6 @@ Build a RFID-based student register/attendance system for classroom use.
   - Displays number of students in class
   - Displays current class register
 - Audio feedback: an event-appropriate salutation is "spoken" to the student
-- 
 
 ##Technologies
 ###Hardware
@@ -26,24 +24,6 @@ Build a RFID-based student register/attendance system for classroom use.
 
 ##Future
 - graphing number of students in class over time
-
-##Install
-```
-sudo apt-get clean
-sudo apt-get autoremove
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install alsa-utils
-sudo nano /etc/modules
-sudo apt-get install mplayer
-sudo nano /etc/mplayer/mplayer.conf
-sudo apt-get install mpg123
-```
-Per [RPi Text to Speech (Speech Synthesis) - eLinux.org](http://elinux.org/RPi_Text_to_Speech_(Speech_Synthesis)).
-
-- install python 3
-- ensure audio is directed to HDMI output (/boot/config.txt)
-- pip3 install gTTS --user
 
 
 ##License

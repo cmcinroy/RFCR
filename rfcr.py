@@ -148,7 +148,7 @@ def speak(opt, id):
             pass
     # Play the sound file (in a subprocess, so we don't wait while the file plays)
     try:
-        subprocess.Popen("mpg123 -q " + fname)
+        subprocess.Popen("mpg123 -q " + fname, shell=True)
     except:
         # Ignore any errors
         pass

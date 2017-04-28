@@ -25,8 +25,12 @@ language = 'en'
 # Set name of student data file
 DATA_FILE = 'students.dat'
 
-# Set name of temporary directory where state and sound files are stored
+# Set name of temporary directory where state and log and sound files are stored
 TEMP_DIR = 'temp'
+
+# Set names of log files
+LOG_FILE = os.path.join(TEMP_DIR, 'rfcr.log')
+LOG_GRAPH_FILE = os.path.join(TEMP_DIR, 'rfcr_graph.log')
 
 # Set name of temporary file where current state is stored
 STATE_FILE = os.path.join(TEMP_DIR, 'state.json')
@@ -37,16 +41,17 @@ data_check = ''
 # Initialize a new, empty "dictionary" variable to store student ids/names
 students = {}
 
-# Set the list of action names
-actions = ['exit', 'enter']
+# Set the list of states and the corresponding action names
+student_states = ['absent', 'present']
+actions = ['enter', 'exit']
 
 # Initialize dictionary variable to store absent/present ids (and the date/time of exit/entry)
-#   ids['exit'] will return a dictionary of students that have left (key=id, value=date/time of exit)
-#   ids['enter'] will return a dictionary of students that have entered (key=id, value=date/time of entry)
-# ids = {'exit': {}, 'enter': {}}
-ids = {key: {} for key in actions}
+#   ids['absent'] will return a dictionary of students that have left (key=id, value=date/time of exit)
+#   ids['present'] will return a dictionary of students that have entered (key=id, value=date/time of entry)
+# ids = {'absent': {}, 'present': {}}
+ids = {key: {} for key in student_states}
 # Create a "view" of student ids that are present in class
-ids_present = ids[actions[1]].keys()
+ids_present = ids[student_states[1]].keys()
 
 # Initialize dictionary to store current state
 state = {}
@@ -73,6 +78,7 @@ def main():
                 # Clear current state
                 clear_state()
                 confirm = False
+                finished = True
             else:
                 print(phrases.get(language)[PHRASE_RESET_CONFIRM])
                 confirm = True
@@ -92,25 +98,30 @@ def main():
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
-# Function: Perform action (enter/exit) for the specified card id
+# Function: Toggle state (present/absent) for the specified card id
 def toggle(id, event_time):
-    # Determine current status (present/absent)
+    # Determine current status (0/false = absent, 1/true = present)
     current = id in ids_present
+
     # Create a message for the action (student name + action phrase)
     message = [students.get(id), phrases.get(language)[current + PHRASE_ACTION]]
     # Remove from current list and get the previous action event time (if any)
-    prev_time = ids.get(actions[current]).pop(id, 0)
-    # Calculate difference in time between last action and current
+    prev_time = ids.get(student_states[current]).pop(id, 0)
+    # Calculate and display difference in time between last action and current
     if (prev_time != 0):
         time_diff = event_time - prev_time
         message.append("(%s %s)" % (phrases.get(language)[current + PHRASE_DELTA], format_timedelta(time_diff)))
-    # Flip status and update class register with event time
-    current = not current
-    ids.get(actions[current])[id] = event_time
     # Print a message for the event
     print(' '.join(message) + ".")
+
+    # Flip status and update class register with event time
+    new_state = not current
+    ids.get(student_states[new_state])[id] = event_time
+
     # Log the event
-    log(int(current), id)
+    log(int(current), id, event_time)
+    # Also, "speak" the event
+    speak(int(current), id)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -132,24 +143,21 @@ def format_timedelta(td):
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
 # Function: Log the event
-def log(action, id):
-    # TODO use current date/time in logging
-    # Just print for now
-    ###print('log: {},{},{},{}'.format(datetime.now(), action, id, len(idsPresent)))
-    logger.info('action={},id={},count={}'.format(action, id, len(ids_present)))
-    # Also, "speak" the event
-    speak(action, id)
+def log(state, id, event_time):
+    # Log the relevant data for the event
+    logger.info(students.get(id), extra={'event_time': event_time.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], 
+        'action': actions[state], 'id': id, 'count': len(ids_present)})
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
 # Function: "Speak" a salutation based on the event and id
-def speak(action, id):
+def speak(state, id):
     # Set the sound file name to "{student_name}_{opt}_{lang}.mp3" (in temp directory)
-    fname = os.path.join(TEMP_DIR, students.get(id).replace(' ', '_') + '_' + str(action) + '_' + language + '.mp3')
+    fname = os.path.join(TEMP_DIR, students.get(id).replace(' ', '_') + '_' + str(state) + '_' + language + '.mp3')
     # If the necessary sound file doesn't already exist, create it
     if not os.path.isfile(fname):
         # Phrase to be spoken is "{salutation} {student name}"
-        phrase = phrases.get(language)[action] + ' ' + students.get(id) + '.'
+        phrase = phrases.get(language)[state] + ' ' + students.get(id) + '.'
         try:
             tts = gTTS(text=phrase, lang=language)
             # Save spoken sound to file
@@ -174,21 +182,20 @@ def initialize():
     os.makedirs(TEMP_DIR, exist_ok=True)
     
     # Initialize logging
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     # create a logging format for audit log
-    formatter = logging.Formatter('%(asctime)s.%(msecs)03d - %(levelname)s - %(message)s', "%Y-%m-%d %H:%M:%S")
+    formatter = logging.Formatter('%(event_time)s - %(levelname)s - %(message)s (%(id)s) - %(action)s - %(count)s')
     # create a handler for the audit log and add the formatter
-    ###handler = logging.FileHandler('rfcr.log')
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
+    handler = logging.FileHandler(LOG_FILE)
+    ###handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
     handler.setFormatter(formatter)
     # add the handler to the logger
     logger.addHandler(handler)
     # create a logging format for graph log 
-    formatter = logging.Formatter('%(message)s,%(asctime)s')
+    formatter = logging.Formatter('%(event_time)s,%(count)s')
     # create a file handler for the graph log and add the formatter
-    ###handler = logging.FileHandler('rfcr_graph.log')
-    handler = logging.StreamHandler()
+    handler = logging.FileHandler(LOG_GRAPH_FILE)
     handler.setLevel(logging.INFO)
     handler.setFormatter(formatter)
     # add the handler to the logger
@@ -237,14 +244,15 @@ def print_state():
     print(phrases.get(language)[PHRASE_QUERY].format(len(ids_present)))
     for id in ids_present:
         print('  {}'.format(students[id]))
-    print(ids)
-    print(ids_present)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - -
 # Function: Save variables to a file
 def save_state():
     global state
+    # Send a message to the log
+    logger.debug('save_state', extra={'event_time': datetime.today().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], 
+        'action': 'save', 'id': '', 'count': ''})
     # Show message indicating whether there are students present in class
     if len(ids_present) > 0:
         print(phrases.get(language)[PHRASE_STATE_NOT_EMPTY])
@@ -252,12 +260,12 @@ def save_state():
         print(phrases.get(language)[PHRASE_STATE_EMPTY])
     # Save important variables in state dictionary
     state['data_check'] = data_check
-    # Only save ids/actions/events if actions have occurred
-    if (ids[actions[0]]) or (ids[actions[1]]):
+    # Only save ids/states/events if actions have occurred
+    if (ids[student_states[0]]) or (ids[student_states[1]]):
         state['ids'] = ids
         print(phrases.get(language)[PHRASE_STATE_SAVE])
     else:
-        # Otherwise, ensure ids/actions/events are not saved
+        # Otherwise, ensure ids/states/events are not saved
         if ('ids' in state):
             del state['ids']
     try:
@@ -275,6 +283,9 @@ def save_state():
 # Function: Load variables from a file
 def load_state():
     global state, data_check, ids, ids_present
+    # Send a message to the log
+    logger.debug('load_state', extra={'event_time': datetime.today().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], 
+        'action': 'load', 'id': '', 'count': ''})
     try:
         # Open the state file for reading
         state_file = open(STATE_FILE, 'r')
@@ -283,11 +294,11 @@ def load_state():
         # Load variables from dictionary
         data_check = state['data_check']
         if ('ids' in state):
-            # Only display message if ids/actions/events are being restored
+            # Only display message if ids/states/events are being restored
             print(phrases.get(language)[PHRASE_STATE_LOAD])
             ids.update(state['ids'])
             # (must also update dictionary view)
-            ids_present = ids[actions[1]].keys()
+            ids_present = ids[student_states[1]].keys()
     except:
         # If there are any errors, reset
         print(phrases.get(language)[PHRASE_ERR_STATE_READ])
@@ -297,18 +308,31 @@ def load_state():
 # - - - - - - - - - - - - - - - - - - - - - - - - -
 # Function: Clear current state
 def clear_state():
-    global state, ids, ids_present
+    global state, ids, ids_present, logger
+    # Send a message to the log
+    logger.debug('clear_state', extra={'event_time': datetime.today().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], 
+        'action': 'clear', 'id': '', 'count': ''})
     # clear state and ids dictionaries
     state.clear()
-    ids = {key: {} for key in actions}
+    ids = {key: {} for key in student_states}
     # (must also update dictionary view)
-    ids_present = ids[actions[1]].keys()
-    # remove state file
+    ids_present = ids[student_states[1]].keys()
     try:
+        # close all logging handlers
+        handlers = logger.handlers.copy()
+        for h in handlers:
+            logger.removeHandler(h)
+            h.flush()
+            h.close()
+        # remove state file
         if os.path.isfile(STATE_FILE):
             os.remove(STATE_FILE)
-        # TODO remove graph log file
-        ###handler = logging.FileHandler('rfcr_graph.log')
+        # remove log file???
+        # if os.path.isfile(LOG_FILE):
+            # os.remove(LOG_FILE)
+        # clear graph log file
+        with open(LOG_GRAPH_FILE, 'w'):
+            pass
     except:
         # If there are any errors, advise user
         print(phrases.get(language)[PHRASE_ERR_STATE_FILE])

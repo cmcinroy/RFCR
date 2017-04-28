@@ -2,11 +2,11 @@
 # Define phrases for all languages
 #
 phrases = {
-    'en': ('Goodbye', 'Hello', 
-        'left the class', 'entered the class', 
-        'absent for', 'present for',
+    'en': ('Hello', 'Goodbye', 
+        'entered the class', 'left the class', 
+        'absent for', 'present for', 
         'Please scan your card',
-        'Reset system (clear again to confirm)?',
+        'Reset system and exit (clear again to confirm)?',
         'Card {} is not registered for this class.',
         'Reading student data', ' done.',
         'WARNING: previous state is being used, but student data has changed.',
@@ -21,11 +21,11 @@ phrases = {
         'System has been reset to a clear initial state.',
         'days', 'hours', 'minutes', 'seconds'
         ),
-    'fr': ('Au revoir', 'Bienvenue', 
-        'a quitté la classe', 'a rejoint la classe', 
-        'absent pendant', 'présent pendant',
+    'fr': ('Bienvenue', 'Au revoir', 
+        'a rejoint la classe', 'a quitté la classe', 
+        'absent pendant', 'présent pendant', 
         'Veuillez analyser votre carte',
-        'Réinitialiser le système (effacer à nouveau pour confirmer)?',
+        'Réinitialiser le système et sortir (effacer à nouveau pour confirmer)?',
         'La carte {} n''est pas enregistrée pour cette classe.',
         'Traitement des données des élèves', ' fini.',
         'AVERTISSEMENT: l''état précédent est utilisé, mais le fichier de données a changé.',

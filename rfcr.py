@@ -193,7 +193,7 @@ def initialize():
     # add the handler to the logger
     logger.addHandler(handler)
     # create a logging format for graph log 
-    formatter = logging.Formatter('%(event_time)s,%(count)s')
+    formatter = logging.Formatter('%(event_time)s,%(count)s,%(message)s')
     # create a file handler for the graph log and add the formatter
     handler = logging.FileHandler(LOG_GRAPH_FILE)
     handler.setLevel(logging.INFO)
